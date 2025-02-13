@@ -8,6 +8,8 @@ import {
   Grid,
   Card,
   CardContent,
+  CircularProgress,
+  Chip,
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import Header from "components/Header";
@@ -16,6 +18,8 @@ import {
   useGetOrdersQuery,
   useGetEnquiriesQuery,
   useGetUserStatisticsQuery,
+  useGetActiveUsersQuery,
+  useGetVisitorsQuery,
 } from "state/api";
 import StatBox from "components/StatBox";
 import {
@@ -29,81 +33,151 @@ const Dashboard = () => {
   const theme = useTheme();
   const isNonMediumScreens = useMediaQuery("(min-width: 1200px)");
   
-  const { data: products } = useGetProductsQuery();
-  const { data: orders } = useGetOrdersQuery();
-  const { data: enquiries } = useGetEnquiriesQuery();
-  const { data: userStats } = useGetUserStatisticsQuery();
+  const { data: products, isLoading: isLoadingProducts } = useGetProductsQuery();
+  const { data: orders, isLoading: isLoadingOrders } = useGetOrdersQuery();
+  const { data: enquiries, isLoading: isLoadingEnquiries } = useGetEnquiriesQuery();
+  const { data: userStats, isLoading: isLoadingStats } = useGetUserStatisticsQuery();
+  const { data: activeUsers } = useGetActiveUsersQuery();
+  const { data: visitors } = useGetVisitorsQuery();
 
-  const recentOrders = orders?.slice(0, 5) || [];
-  const recentEnquiries = enquiries?.slice(0, 5) || [];
+  const recentOrders = orders?.slice(-5).reverse() || [];
+  const recentEnquiries = enquiries?.slice(-5).reverse() || [];
 
   const dashboardStats = [
     {
       title: "Total Products",
       value: products?.length || 0,
       icon: <PointOfSale sx={{ color: theme.palette.secondary[300], fontSize: "26px" }} />,
+      description: "Total products in inventory",
     },
     {
       title: "Total Orders",
       value: orders?.length || 0,
       icon: <Traffic sx={{ color: theme.palette.secondary[300], fontSize: "26px" }} />,
+      description: "Total orders received",
     },
     {
       title: "Active Users",
-      value: userStats?.activeToday || 0,
+      value: activeUsers?.count || 0,
       icon: <PersonAdd sx={{ color: theme.palette.secondary[300], fontSize: "26px" }} />,
+      description: "Users active today",
     },
     {
-      title: "Avg Session Time",
-      value: userStats?.avgSessionTime ? `${Math.round(userStats.avgSessionTime / 60)}m` : "0m",
+      title: "Total Visitors",
+      value: visitors?.count || 0,
       icon: <QueryBuilder sx={{ color: theme.palette.secondary[300], fontSize: "26px" }} />,
+      description: "Visitors this month",
     },
   ];
 
   const orderColumns = [
     {
-      field: "_id",
-      headerName: "ID",
-      flex: 1,
-    },
-    {
       field: "customerName",
       headerName: "Customer",
       flex: 1,
+      renderCell: (params) => (
+        <Typography sx={{ color: theme.palette.secondary[100] }}>
+          {params.value}
+        </Typography>
+      ),
+    },
+    {
+      field: "productName",
+      headerName: "Product",
+      flex: 1,
+      renderCell: (params) => (
+        <Typography sx={{ color: theme.palette.secondary[100] }}>
+          {params.value}
+        </Typography>
+      ),
     },
     {
       field: "status",
       headerName: "Status",
       flex: 0.8,
-    },
-    {
-      field: "createdAt",
-      headerName: "Created At",
-      flex: 1,
-      renderCell: (params) => new Date(params.value).toLocaleString(),
+      renderCell: (params) => {
+        const getStatusColor = (status) => {
+          switch (status.toLowerCase()) {
+            case "completed":
+              return theme.palette.success.main;
+            case "processing":
+              return theme.palette.warning.main;
+            case "pending":
+              return theme.palette.info.main;
+            default:
+              return theme.palette.grey[500];
+          }
+        };
+
+        return (
+          <Chip
+            label={params.value}
+            sx={{
+              backgroundColor: getStatusColor(params.value),
+              color: "#fff",
+            }}
+          />
+        );
+      },
     },
   ];
 
   const enquiryColumns = [
     {
-      field: "_id",
-      headerName: "ID",
-      flex: 1,
-    },
-    {
       field: "name",
       headerName: "Name",
       flex: 1,
+      renderCell: (params) => (
+        <Typography sx={{ color: theme.palette.secondary[100] }}>
+          {params.value}
+        </Typography>
+      ),
     },
     {
       field: "subject",
       headerName: "Subject",
       flex: 1,
+      renderCell: (params) => (
+        <Typography 
+          sx={{ 
+            color: theme.palette.secondary[100],
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+          }}
+        >
+          {params.value}
+        </Typography>
+      ),
     },
     {
       field: "status",
       headerName: "Status",
       flex: 0.8,
+      renderCell: (params) => {
+        const getStatusColor = (status) => {
+          switch (status.toLowerCase()) {
+            case "resolved":
+              return theme.palette.success.main;
+            case "in progress":
+              return theme.palette.warning.main;
+            case "new":
+              return theme.palette.info.main;
+            default:
+              return theme.palette.grey[500];
+          }
+        };
+
+        return (
+          <Chip
+            label={params.value}
+            sx={{
+              backgroundColor: getStatusColor(params.value),
+              color: "#fff",
+            }}
+          />
+        );
+      },
     },
   ];
 
@@ -118,7 +192,7 @@ const Dashboard = () => {
               title={stat.title}
               value={stat.value}
               icon={stat.icon}
-              description="Since last month"
+              description={stat.description}
             />
           </Grid>
         ))}
@@ -138,43 +212,69 @@ const Dashboard = () => {
         <Box
           gridColumn="span 6"
           gridRow="span 2"
-          sx={{
-            "& .MuiDataGrid-root": {
-              border: "none",
-            },
-            "& .MuiDataGrid-cell": {
-              borderBottom: "none",
-            },
-            "& .MuiDataGrid-columnHeaders": {
-              backgroundColor: theme.palette.background.alt,
-              color: theme.palette.secondary[100],
-              borderBottom: "none",
-            },
-            "& .MuiDataGrid-virtualScroller": {
-              backgroundColor: theme.palette.primary.light,
-            },
-            "& .MuiDataGrid-footerContainer": {
-              backgroundColor: theme.palette.background.alt,
-              color: theme.palette.secondary[100],
-              borderTop: "none",
-            },
-            "& .MuiDataGrid-toolbarContainer .MuiButton-text": {
-              color: `${theme.palette.secondary[200]} !important`,
-            },
-          }}
         >
-          <Card sx={{ height: "100%" }}>
+          <Card 
+            sx={{ 
+              height: "100%",
+              backgroundColor: theme.palette.background.alt,
+              backgroundImage: "none",
+              borderRadius: "0.55rem",
+            }}
+          >
             <CardContent>
-              <Typography variant="h6" sx={{ color: theme.palette.secondary[100] }}>
+              <Typography 
+                variant="h6" 
+                sx={{ 
+                  color: theme.palette.secondary[100],
+                  mb: 2
+                }}
+              >
                 Recent Orders
               </Typography>
-              <DataGrid
-                rows={recentOrders}
-                columns={orderColumns}
-                pageSize={5}
-                getRowId={(row) => row._id}
-                rowsPerPageOptions={[5]}
-              />
+              {isLoadingOrders ? (
+                <Box display="flex" justifyContent="center" alignItems="center" height="100%">
+                  <CircularProgress />
+                </Box>
+              ) : (
+                <Box
+                  sx={{
+                    height: "300px",
+                    "& .MuiDataGrid-root": {
+                      border: "none",
+                      backgroundColor: theme.palette.background.alt,
+                    },
+                    "& .MuiDataGrid-cell": {
+                      borderBottom: "none",
+                    },
+                    "& .MuiDataGrid-columnHeaders": {
+                      backgroundColor: theme.palette.background.alt,
+                      color: theme.palette.secondary[100],
+                      borderBottom: "none",
+                    },
+                    "& .MuiDataGrid-virtualScroller": {
+                      backgroundColor: theme.palette.background.alt,
+                    },
+                    "& .MuiDataGrid-footerContainer": {
+                      backgroundColor: theme.palette.background.alt,
+                      color: theme.palette.secondary[100],
+                      borderTop: "none",
+                    },
+                    "& .MuiDataGrid-toolbarContainer .MuiButton-text": {
+                      color: `${theme.palette.secondary[200]} !important`,
+                    },
+                  }}
+                >
+                  <DataGrid
+                    rows={recentOrders}
+                    columns={orderColumns}
+                    pageSize={5}
+                    getRowId={(row) => row._id}
+                    rowsPerPageOptions={[5]}
+                    disableSelectionOnClick
+                    hideFooter
+                  />
+                </Box>
+              )}
             </CardContent>
           </Card>
         </Box>
@@ -183,43 +283,69 @@ const Dashboard = () => {
         <Box
           gridColumn="span 6"
           gridRow="span 2"
-          sx={{
-            "& .MuiDataGrid-root": {
-              border: "none",
-            },
-            "& .MuiDataGrid-cell": {
-              borderBottom: "none",
-            },
-            "& .MuiDataGrid-columnHeaders": {
-              backgroundColor: theme.palette.background.alt,
-              color: theme.palette.secondary[100],
-              borderBottom: "none",
-            },
-            "& .MuiDataGrid-virtualScroller": {
-              backgroundColor: theme.palette.primary.light,
-            },
-            "& .MuiDataGrid-footerContainer": {
-              backgroundColor: theme.palette.background.alt,
-              color: theme.palette.secondary[100],
-              borderTop: "none",
-            },
-            "& .MuiDataGrid-toolbarContainer .MuiButton-text": {
-              color: `${theme.palette.secondary[200]} !important`,
-            },
-          }}
         >
-          <Card sx={{ height: "100%" }}>
+          <Card 
+            sx={{ 
+              height: "100%",
+              backgroundColor: theme.palette.background.alt,
+              backgroundImage: "none",
+              borderRadius: "0.55rem",
+            }}
+          >
             <CardContent>
-              <Typography variant="h6" sx={{ color: theme.palette.secondary[100] }}>
+              <Typography 
+                variant="h6" 
+                sx={{ 
+                  color: theme.palette.secondary[100],
+                  mb: 2
+                }}
+              >
                 Recent Enquiries
               </Typography>
-              <DataGrid
-                rows={recentEnquiries}
-                columns={enquiryColumns}
-                pageSize={5}
-                getRowId={(row) => row._id}
-                rowsPerPageOptions={[5]}
-              />
+              {isLoadingEnquiries ? (
+                <Box display="flex" justifyContent="center" alignItems="center" height="100%">
+                  <CircularProgress />
+                </Box>
+              ) : (
+                <Box
+                  sx={{
+                    height: "300px",
+                    "& .MuiDataGrid-root": {
+                      border: "none",
+                      backgroundColor: theme.palette.background.alt,
+                    },
+                    "& .MuiDataGrid-cell": {
+                      borderBottom: "none",
+                    },
+                    "& .MuiDataGrid-columnHeaders": {
+                      backgroundColor: theme.palette.background.alt,
+                      color: theme.palette.secondary[100],
+                      borderBottom: "none",
+                    },
+                    "& .MuiDataGrid-virtualScroller": {
+                      backgroundColor: theme.palette.background.alt,
+                    },
+                    "& .MuiDataGrid-footerContainer": {
+                      backgroundColor: theme.palette.background.alt,
+                      color: theme.palette.secondary[100],
+                      borderTop: "none",
+                    },
+                    "& .MuiDataGrid-toolbarContainer .MuiButton-text": {
+                      color: `${theme.palette.secondary[200]} !important`,
+                    },
+                  }}
+                >
+                  <DataGrid
+                    rows={recentEnquiries}
+                    columns={enquiryColumns}
+                    pageSize={5}
+                    getRowId={(row) => row._id}
+                    rowsPerPageOptions={[5]}
+                    disableSelectionOnClick
+                    hideFooter
+                  />
+                </Box>
+              )}
             </CardContent>
           </Card>
         </Box>

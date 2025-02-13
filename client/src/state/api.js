@@ -32,20 +32,35 @@ export const api = createApi({
       query: () => "users",
       providesTags: ["User"],
     }),
+    createUser: build.mutation({
+      query: (data) => ({
+        url: "users",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["User"],
+    }),
     updateUser: build.mutation({
-      query: ({ userId, ...data }) => ({
-        url: `users/${userId}`,
+      query: ({ id, ...data }) => ({
+        url: `users/${id}`,
         method: "PATCH",
         body: data,
       }),
       invalidatesTags: ["User"],
     }),
+    deleteUser: build.mutation({
+      query: (id) => ({
+        url: `users/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["User"],
+    }),
     uploadPhoto: build.mutation({
-      query: ({ userId, photo }) => {
+      query: ({ id, photo }) => {
         const formData = new FormData();
         formData.append("photo", photo);
         return {
-          url: `users/${userId}/photo`,
+          url: `users/${id}/photo`,
           method: "POST",
           body: formData,
         };
@@ -101,22 +116,18 @@ export const api = createApi({
       providesTags: ["Notifications"],
     }),
     
-    // Active Users endpoints
-    getActiveUsers: build.query({
-      query: () => "active-users",
-      providesTags: ["ActiveUsers"],
-    }),
-    
-    // Visitors endpoints
-    getVisitors: build.query({
-      query: () => "visitors",
-      providesTags: ["Visitors"],
-    }),
-    
     // User Statistics endpoints
     getUserStatistics: build.query({
-      query: () => "user-statistics",
+      query: () => "statistics/users",
       providesTags: ["UserStatistics"],
+    }),
+    getActiveUsers: build.query({
+      query: () => "statistics/active-users",
+      providesTags: ["ActiveUsers"],
+    }),
+    getVisitors: build.query({
+      query: () => "statistics/visitors",
+      providesTags: ["Visitors"],
     }),
   }),
 });
@@ -124,7 +135,9 @@ export const api = createApi({
 export const {
   useGetUserQuery,
   useGetUsersQuery,
+  useCreateUserMutation,
   useUpdateUserMutation,
+  useDeleteUserMutation,
   useUploadPhotoMutation,
   useGetProductsQuery,
   useCreateProductMutation,
@@ -133,7 +146,7 @@ export const {
   useGetEnquiriesQuery,
   useCreateEnquiryMutation,
   useGetNotificationsQuery,
+  useGetUserStatisticsQuery,
   useGetActiveUsersQuery,
   useGetVisitorsQuery,
-  useGetUserStatisticsQuery,
 } = api;
