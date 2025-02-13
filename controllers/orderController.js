@@ -1,0 +1,76 @@
+// controllers/orderController.js
+const Order = require('../models/Order');
+
+const orderController = {
+  // Create a new order
+  async createOrder(req, res) {
+    try {
+      const order = new Order(req.body);
+      await order.save();
+      res.status(201).json(order);
+    } catch (error) {
+      res.status(400).json({ message: error.message });
+    }
+  },
+
+  // Get all orders
+  async getAllOrders(req, res) {
+    try {
+      const orders = await Order.find()
+        .populate('user_id', 'name email')
+        .populate('products.product_id', 'name price');
+      res.json(orders);
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  },
+
+  // Get a single order
+  async getOrder(req, res) {
+    try {
+      const order = await Order.findById(req.params.id)
+        .populate('user_id', 'name email')
+        .populate('products.product_id', 'name price');
+      if (!order) {
+        return res.status(404).json({ message: 'Order not found' });
+      }
+      res.json(order);
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  },
+
+  // Update order status
+  async updateOrder(req, res) {
+    try {
+      const order = await Order.findByIdAndUpdate(
+        req.params.id,
+        req.body,
+        { new: true }
+      ).populate('user_id', 'name email')
+       .populate('products.product_id', 'name price');
+      
+      if (!order) {
+        return res.status(404).json({ message: 'Order not found' });
+      }
+      res.json(order);
+    } catch (error) {
+      res.status(400).json({ message: error.message });
+    }
+  },
+
+  // Delete an order
+  async deleteOrder(req, res) {
+    try {
+      const order = await Order.findByIdAndDelete(req.params.id);
+      if (!order) {
+        return res.status(404).json({ message: 'Order not found' });
+      }
+      res.json({ message: 'Order deleted successfully' });
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  }
+};
+
+module.exports = orderController;
