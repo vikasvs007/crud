@@ -16,7 +16,9 @@ const enquiryController = {
   // Get all enquiries
   async getEnquiries(req, res) {
     try {
-      const enquiries = await Enquiry.find();
+      const enquiries = await Enquiry.find()
+        .populate('user_id', 'name email phone')
+        .sort({ created_at: -1 });
       res.json(enquiries);
     } catch (error) {
       res.status(500).json({ message: error.message });

@@ -18,8 +18,23 @@ const orderController = {
     try {
       const orders = await Order.find()
         .populate('user_id', 'name email')
-        .populate('products.product_id', 'name price');
-      res.json(orders);
+        .populate('products.product_id', 'name price stock_quantity image')
+        .sort({ created_at: -1 });
+
+      const formattedOrders = orders.map(order => {
+        const orderObj = order.toObject();
+        return {
+          ...orderObj,
+          products: orderObj.products.map(product => ({
+            ...product,
+            name: product.product_id?.name || 'N/A',
+            price: product.product_id?.price || 0,
+            image: product.product_id?.image || '',
+          }))
+        };
+      });
+
+      res.json(formattedOrders);
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
