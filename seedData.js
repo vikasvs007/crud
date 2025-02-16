@@ -417,6 +417,68 @@ const products = [
 
 // Function to create related data after users and products are created
 const createRelatedData = async (users, products) => {
+  // Create notifications
+  const notifications = [
+    {
+      user_id: users[0]._id,
+      message: 'Welcome to the admin dashboard!',
+      is_read: false,
+      is_deleted: false,
+      created_at: new Date(),
+    },
+    {
+      user_id: users[1]._id,
+      message: 'New order received from Sarah Johnson',
+      is_read: false,
+      is_deleted: false,
+      created_at: new Date(),
+    },
+    {
+      user_id: users[2]._id,
+      message: 'Product stock running low: Laptop Pro',
+      is_read: true,
+      is_deleted: false,
+      created_at: new Date(),
+    },
+    {
+      user_id: users[3]._id,
+      message: 'Customer support request pending',
+      is_read: false,
+      is_deleted: false,
+      created_at: new Date(),
+    },
+    {
+      user_id: users[4]._id,
+      message: 'System maintenance scheduled for tomorrow',
+      is_read: true,
+      is_deleted: false,
+      created_at: new Date(),
+    },
+    {
+      message: 'Daily sales report generated',
+      is_read: false,
+      is_deleted: false,
+      created_at: new Date(),
+    },
+    {
+      user_id: users[5]._id,
+      message: 'New user registration: Mike Wilson',
+      is_read: false,
+      is_deleted: false,
+      created_at: new Date(),
+    },
+    {
+      user_id: users[6]._id,
+      message: 'Payment received for order #12345',
+      is_read: true,
+      is_deleted: false,
+      created_at: new Date(),
+    },
+  ];
+
+  await Notifications.deleteMany({});
+  await Notifications.insertMany(notifications);
+
   // Create enquiries
   const enquiries = [
     {
@@ -910,87 +972,10 @@ const createRelatedData = async (users, products) => {
     }
   ];
 
-  // Create notifications
-  const notifications = [
-    {
-      user_id: users[0]._id,
-      message: 'Your order has been shipped',
-      is_read: false,
-      is_deleted: false
-    },
-    {
-      user_id: users[2]._id,
-      message: 'Special offer available on your wishlist items',
-      is_read: false,
-      is_deleted: false
-    },
-    {
-      user_id: users[3]._id,
-      message: 'Your order has been delivered',
-      is_read: true,
-      is_deleted: false
-    },
-    {
-      user_id: users[4]._id,
-      message: 'Price drop on items in your cart',
-      is_read: false,
-      is_deleted: false
-    },
-    {
-      user_id: users[5]._id,
-      message: 'Review your recent purchase',
-      is_read: true,
-      is_deleted: false
-    },
-    {
-      user_id: users[6]._id,
-      message: 'New products in your favorite category',
-      is_read: false,
-      is_deleted: false
-    },
-    {
-      user_id: users[7]._id,
-      message: 'Limited time offer ending soon',
-      is_read: true,
-      is_deleted: false
-    },
-    {
-      user_id: users[8]._id,
-      message: 'Your support ticket has been updated',
-      is_read: false,
-      is_deleted: false
-    },
-    {
-      user_id: users[9]._id,
-      message: 'Weekend sale starting now',
-      is_read: true,
-      is_deleted: false
-    },
-    {
-      user_id: users[0]._id,
-      message: 'Your order is out for delivery',
-      is_read: false,
-      is_deleted: false
-    },
-    {
-      user_id: users[1]._id,
-      message: 'Thank you for your recent purchase',
-      is_read: true,
-      is_deleted: false
-    },
-    {
-      user_id: users[1]._id,
-      message: 'New product available',
-      is_read: true,
-      is_deleted: false
-    }
-  ];
-
   await Enquiries.insertMany(enquiries);
   await ActiveUsers.insertMany(activeUsers);
   await Orders.insertMany(orders);
   await UserStatistics.insertMany(userStatistics);
-  await Notifications.insertMany(notifications);
 
   console.log('Related data seeded successfully');
 };

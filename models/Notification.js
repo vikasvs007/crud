@@ -5,7 +5,7 @@ const notificationSchema = new mongoose.Schema({
   user_id: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Users',
-    required: true
+    required: false
   },
   message: {
     type: String,
@@ -23,4 +23,4 @@ const notificationSchema = new mongoose.Schema({
   timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' }
 });
 
-module.exports = mongoose.model('notifications', notificationSchema);
+module.exports = mongoose.model('Notifications', notificationSchema);
