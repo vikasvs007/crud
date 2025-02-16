@@ -85,7 +85,7 @@ export const api = createApi({
     updateProduct: build.mutation({
       query: ({ id, ...data }) => ({
         url: `products/${id}`,
-        method: "PATCH",
+        method: "PUT",
         body: data,
       }),
       invalidatesTags: ["Products"],

@@ -106,16 +106,77 @@ const Enquiries = () => {
       field: "user_id",
       headerName: "User Details",
       flex: 1.5,
-      renderCell: (params) => (
-        <Box>
-          <Typography sx={{ color: theme.palette.secondary[100] }}>
-            {params.value?.name || params.row.name || "Unknown User"}
-          </Typography>
-          <Typography variant="caption" sx={{ color: theme.palette.secondary[300] }}>
-            {params.value?.email || params.row.email || "No email"} • {params.value?.phone || params.row.phone || "No phone"}
-          </Typography>
-        </Box>
-      ),
+      renderCell: (params) => {
+        const email = params.value?.email || params.row.email || "";
+        const phone = params.value?.phone || params.row.phone || "";
+        return (
+          <Box>
+            <Typography 
+              sx={{ 
+                color: theme.palette.secondary[100],
+                fontSize: '1rem',
+                fontWeight: 'bold',
+                mb: 0.5
+              }}
+            >
+              {params.value?.name || params.row.name || "Unknown User"}
+            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+              {email && (
+                <Box 
+                  component="a" 
+                  href={`mailto:${email}`}
+                  sx={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    color: theme.palette.secondary[300],
+                    textDecoration: 'none',
+                    fontSize: '0.9rem',
+                    '&:hover': {
+                      textDecoration: 'underline',
+                      color: theme.palette.primary.main
+                    }
+                  }}
+                >
+                  <EmailIcon sx={{ fontSize: 18, mr: 0.5 }} />
+                  <Typography sx={{ fontSize: '0.9rem' }}>{email}</Typography>
+                </Box>
+              )}
+              {email && phone && (
+                <Typography 
+                  sx={{ 
+                    color: theme.palette.secondary[300],
+                    fontSize: '0.9rem',
+                    fontWeight: 'bold'
+                  }}
+                >
+                  •
+                </Typography>
+              )}
+              {phone && (
+                <Box 
+                  component="a" 
+                  href={`tel:${phone}`}
+                  sx={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    color: theme.palette.secondary[300],
+                    textDecoration: 'none',
+                    fontSize: '0.9rem',
+                    '&:hover': {
+                      textDecoration: 'underline',
+                      color: theme.palette.primary.main
+                    }
+                  }}
+                >
+                  <PhoneIcon sx={{ fontSize: 18, mr: 0.5 }} />
+                  <Typography sx={{ fontSize: '0.9rem' }}>{phone}</Typography>
+                </Box>
+              )}
+            </Box>
+          </Box>
+        );
+      },
     },
     {
       field: "message",

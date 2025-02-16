@@ -159,15 +159,23 @@ const Products = () => {
   const handleSubmit = async (formData) => {
     try {
       if (selectedProduct) {
-        await updateProduct({
+        // Convert numeric fields and ensure proper data structure
+        const updateData = {
           id: selectedProduct._id,
-          ...formData,
-        });
+          name: formData.name,
+          description: formData.description,
+          price: Number(formData.price),
+          stock_quantity: Number(formData.stock_quantity),
+          image_url: formData.image_url,
+        };
+        await updateProduct(updateData).unwrap();
       } else {
-        await createProduct(formData);
+        await createProduct(formData).unwrap();
       }
+      setDialogOpen(false);
     } catch (error) {
       console.error('Error saving product:', error);
+      alert('Error saving product. Please try again.');
     }
   };
 
