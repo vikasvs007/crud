@@ -4,26 +4,29 @@ import {
   Card,
   CardActions,
   CardContent,
-  Collapse,
   Button,
   Typography,
-  Rating,
   useTheme,
   useMediaQuery,
   CircularProgress,
-  Chip,
-  Divider,
+  IconButton,
   Stack,
+  Chip,
 } from "@mui/material";
 import {
   Inventory2Outlined,
-  LocalOfferOutlined,
-  StarBorderOutlined,
-  ExpandMore,
-  ExpandLess,
+  Edit as EditIcon,
+  Delete as DeleteIcon,
+  Add as AddIcon,
 } from "@mui/icons-material";
 import Header from "components/Header";
-import { useGetProductsQuery } from "state/api";
+import ProductDialog from "components/ProductDialog";
+import { 
+  useGetProductsQuery,
+  useCreateProductMutation,
+  useUpdateProductMutation,
+  useDeleteProductMutation,
+} from "state/api";
 
 const formatCurrency = (amount) => {
   return new Intl.NumberFormat('en-US', {
@@ -46,272 +49,185 @@ const Product = ({
   name,
   description,
   price,
-  rating,
-  category,
-  supply,
-  stat,
+  stock_quantity,
+  image_url,
+  onEdit,
+  onDelete,
 }) => {
   const theme = useTheme();
-  const [isExpanded, setIsExpanded] = useState(false);
 
   return (
     <Card
       sx={{
         backgroundImage: "none",
         backgroundColor: theme.palette.background.alt,
-        borderRadius: "0.75rem",
-        transition: "transform 0.3s ease-in-out",
-        "&:hover": {
-          transform: "translateY(-4px)",
-          boxShadow: theme.shadows[4],
-        },
+        borderRadius: "0.55rem",
       }}
     >
       <CardContent>
-        <Box mb={2}>
-          <Chip
-            label={category || "Uncategorized"}
-            size="small"
-            sx={{
-              backgroundColor: theme.palette.secondary[700],
-              color: theme.palette.background.alt,
-              fontWeight: "600",
-            }}
-          />
-        </Box>
-        
-        <Typography 
-          variant="h5" 
-          component="div" 
-          sx={{ 
-            mb: 1,
-            fontWeight: "600",
-            color: theme.palette.secondary[100],
-          }}
-        >
+        <Typography variant="h5" component="div">
           {name}
         </Typography>
-
-        <Stack 
-          direction="row" 
-          spacing={2} 
-          alignItems="center" 
-          mb={2}
-        >
-          <Typography 
-            variant="h6" 
-            color={theme.palette.secondary[400]}
-            sx={{ 
-              display: "flex",
-              alignItems: "center",
-              gap: "0.5rem",
-            }}
-          >
-            <LocalOfferOutlined fontSize="small" />
-            {formatCurrency(price)}
-          </Typography>
-
-          <Box sx={{ 
-            display: "flex", 
-            alignItems: "center",
-            gap: "0.5rem",
-          }}>
-            <StarBorderOutlined sx={{ color: theme.palette.secondary[400] }} />
-            <Rating 
-              value={Number(rating || 0)} 
-              readOnly 
-              precision={0.5}
-              sx={{ color: theme.palette.secondary[300] }}
-            />
-          </Box>
-        </Stack>
-
-        <Typography 
-          variant="body2" 
-          color={theme.palette.secondary[200]}
-          sx={{ 
-            minHeight: "3em",
-            display: "-webkit-box",
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: "vertical",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-          }}
-        >
+        <Typography sx={{ mb: "1.5rem" }} color={theme.palette.secondary[400]}>
+          {formatCurrency(price)}
+        </Typography>
+        <Typography variant="body2" color={theme.palette.secondary[200]} sx={{ mb: 2 }}>
           {description}
         </Typography>
+        {image_url && (
+          <Box
+            component="img"
+            src={image_url}
+            alt={name}
+            sx={{
+              width: "100%",
+              height: 200,
+              objectFit: "cover",
+              borderRadius: "4px",
+              mb: 2,
+            }}
+          />
+        )}
       </CardContent>
-
-      <Divider sx={{ opacity: 0.2 }} />
-
       <CardActions>
-        <Button
-          variant="text"
-          size="small"
-          onClick={() => setIsExpanded(!isExpanded)}
-          sx={{
-            color: theme.palette.secondary[300],
-            display: "flex",
-            alignItems: "center",
-            gap: "0.25rem",
-          }}
-        >
-          {isExpanded ? "Show Less" : "Show More"}
-          {isExpanded ? <ExpandLess /> : <ExpandMore />}
-        </Button>
+        <Stack direction="row" spacing={1} alignItems="center" sx={{ width: '100%', justifyContent: 'space-between' }}>
+          <Chip
+            icon={<Inventory2Outlined />}
+            label={`${formatNumber(stock_quantity)} in stock`}
+            color={stock_quantity > 0 ? "primary" : "error"}
+          />
+          <Box>
+            <IconButton 
+              size="small" 
+              color="primary" 
+              onClick={() => onEdit({
+                _id,
+                name,
+                description,
+                price,
+                stock_quantity,
+                image_url,
+              })}
+            >
+              <EditIcon />
+            </IconButton>
+            <IconButton 
+              size="small" 
+              color="error"
+              onClick={() => onDelete(_id)}
+            >
+              <DeleteIcon />
+            </IconButton>
+          </Box>
+        </Stack>
       </CardActions>
-
-      <Collapse in={isExpanded} timeout="auto" unmountOnExit>
-        <CardContent>
-          <Stack spacing={2}>
-            <Box>
-              <Typography 
-                variant="caption" 
-                color={theme.palette.secondary[400]}
-                sx={{ display: "block", mb: 0.5 }}
-              >
-                Product ID
-              </Typography>
-              <Typography 
-                variant="body2"
-                sx={{ 
-                  fontFamily: "monospace",
-                  color: theme.palette.secondary[200],
-                }}
-              >
-                {_id}
-              </Typography>
-            </Box>
-
-            <Box sx={{ 
-              display: "flex",
-              alignItems: "center",
-              gap: "0.5rem",
-            }}>
-              <Inventory2Outlined sx={{ color: theme.palette.secondary[300] }} />
-              <Typography color={theme.palette.secondary[200]}>
-                Supply Left: <strong>{formatNumber(supply)}</strong> units
-              </Typography>
-            </Box>
-
-            {stat && (
-              <>
-                <Divider sx={{ opacity: 0.2 }} />
-                <Box>
-                  <Typography 
-                    variant="subtitle2" 
-                    color={theme.palette.secondary[400]}
-                    sx={{ mb: 1 }}
-                  >
-                    Yearly Statistics
-                  </Typography>
-                  <Stack spacing={1}>
-                    <Typography variant="body2" color={theme.palette.secondary[200]}>
-                      Total Sales: {formatCurrency(stat.yearlySalesTotal)}
-                    </Typography>
-                    <Typography variant="body2" color={theme.palette.secondary[200]}>
-                      Units Sold: {formatNumber(stat.yearlyTotalSoldUnits)}
-                    </Typography>
-                  </Stack>
-                </Box>
-              </>
-            )}
-          </Stack>
-        </CardContent>
-      </Collapse>
     </Card>
   );
 };
 
 const Products = () => {
-  const { data, isLoading, error } = useGetProductsQuery();
-  const isNonMobile = useMediaQuery("(min-width: 1000px)");
   const theme = useTheme();
+  const isNonMobile = useMediaQuery("(min-width: 1000px)");
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
-  if (error) {
-    return (
-      <Box m="1.5rem 2.5rem">
-        <Header title="PRODUCTS" subtitle="See your list of products." />
-        <Box
-          mt="20px"
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-          height="50vh"
-        >
-          <Typography color="error" variant="h5">
-            Error loading products. Please try again later.
-          </Typography>
-        </Box>
-      </Box>
-    );
-  }
+  const { data, isLoading } = useGetProductsQuery();
+  const [createProduct] = useCreateProductMutation();
+  const [updateProduct] = useUpdateProductMutation();
+  const [deleteProduct] = useDeleteProductMutation();
+
+  const handleAdd = () => {
+    setSelectedProduct(null);
+    setDialogOpen(true);
+  };
+
+  const handleEdit = (product) => {
+    setSelectedProduct(product);
+    setDialogOpen(true);
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this product?')) {
+      try {
+        await deleteProduct(id);
+      } catch (error) {
+        console.error('Error deleting product:', error);
+      }
+    }
+  };
+
+  const handleSubmit = async (formData) => {
+    try {
+      if (selectedProduct) {
+        await updateProduct({
+          id: selectedProduct._id,
+          ...formData,
+        });
+      } else {
+        await createProduct(formData);
+      }
+    } catch (error) {
+      console.error('Error saving product:', error);
+    }
+  };
 
   return (
     <Box m="1.5rem 2.5rem">
       <Header title="PRODUCTS" subtitle="See your list of products." />
+      <Box mt="20px">
+        <Button
+          variant="contained"
+          startIcon={<AddIcon />}
+          onClick={handleAdd}
+          sx={{ mb: 2 }}
+        >
+          Add Product
+        </Button>
+      </Box>
       {isLoading ? (
-        <Box
-          mt="20px"
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-          height="50vh"
-        >
-          <CircularProgress
-            size={60}
-            thickness={2}
-            sx={{ color: theme.palette.secondary[300] }}
-          />
-        </Box>
-      ) : !data || data.length === 0 ? (
-        <Box
-          mt="20px"
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-          height="50vh"
-        >
-          <Typography variant="h5" color={theme.palette.secondary[300]}>
-            No products found.
-          </Typography>
+        <Box display="flex" justifyContent="center">
+          <CircularProgress />
         </Box>
       ) : (
         <Box
           mt="20px"
           display="grid"
-          gridTemplateColumns={`repeat(${isNonMobile ? 4 : 1}, 1fr)`}
-          gap="2rem"
+          gridTemplateColumns="repeat(4, minmax(0, 1fr))"
+          justifyContent="space-between"
+          rowGap="20px"
+          columnGap="1.33%"
           sx={{
-            "& > div": { height: "100%" },
+            "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
           }}
         >
-          {data.map(
-            ({
-              _id,
-              name,
-              description,
-              price,
-              rating,
-              category,
-              supply,
-              stat,
-            }) => (
-              <Product
-                key={_id}
-                _id={_id}
-                name={name}
-                description={description}
-                price={price}
-                rating={rating}
-                category={category}
-                supply={supply}
-                stat={stat}
-              />
-            )
-          )}
+          {data.map(({
+            _id,
+            name,
+            description,
+            price,
+            stock_quantity,
+            image_url,
+          }) => (
+            <Product
+              key={_id}
+              _id={_id}
+              name={name}
+              description={description}
+              price={price}
+              stock_quantity={stock_quantity}
+              image_url={image_url}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
+          ))}
         </Box>
       )}
+      <ProductDialog
+        open={dialogOpen}
+        onClose={() => setDialogOpen(false)}
+        onSubmit={handleSubmit}
+        initialData={selectedProduct}
+      />
     </Box>
   );
 };

@@ -75,10 +75,25 @@ export const api = createApi({
       providesTags: ["Products"],
     }),
     createProduct: build.mutation({
-      query: (product) => ({
+      query: (data) => ({
         url: "products",
         method: "POST",
-        body: product,
+        body: data,
+      }),
+      invalidatesTags: ["Products"],
+    }),
+    updateProduct: build.mutation({
+      query: ({ id, ...data }) => ({
+        url: `products/${id}`,
+        method: "PATCH",
+        body: data,
+      }),
+      invalidatesTags: ["Products"],
+    }),
+    deleteProduct: build.mutation({
+      query: (id) => ({
+        url: `products/${id}`,
+        method: "DELETE",
       }),
       invalidatesTags: ["Products"],
     }),
@@ -152,6 +167,8 @@ export const {
   useUploadPhotoMutation,
   useGetProductsQuery,
   useCreateProductMutation,
+  useUpdateProductMutation,
+  useDeleteProductMutation,
   useGetOrdersQuery,
   useCreateOrderMutation,
   useGetEnquiriesQuery,
