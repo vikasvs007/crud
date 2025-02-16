@@ -2,7 +2,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const api = createApi({
   baseQuery: fetchBaseQuery({
-    baseUrl: process.env.REACT_APP_BASE_URL || "http://localhost:5001/api",
+    baseUrl: process.env.REACT_APP_BASE_URL || "http://localhost:5000/api",
     prepareHeaders: (headers, { getState }) => {
       const token = getState().global?.token;
       if (token) {
@@ -131,6 +131,22 @@ export const api = createApi({
       query: () => "notifications",
       providesTags: ["Notifications"],
     }),
+    createNotification: build.mutation({
+      query: (data) => ({
+        url: "notifications",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["Notifications"],
+    }),
+    updateNotification: build.mutation({
+      query: ({ id, ...data }) => ({
+        url: `notifications/${id}`,
+        method: "PATCH",
+        body: data,
+      }),
+      invalidatesTags: ["Notifications"],
+    }),
     
     // Active Users endpoints
     getActiveUsers: build.query({
@@ -174,8 +190,10 @@ export const {
   useGetEnquiriesQuery,
   useCreateEnquiryMutation,
   useGetNotificationsQuery,
-  useGetUserStatisticsQuery,
+  useCreateNotificationMutation,
+  useUpdateNotificationMutation,
   useGetActiveUsersQuery,
   useGetVisitorsQuery,
+  useGetUserStatisticsQuery,
   useGetGeographyQuery,
 } = api;

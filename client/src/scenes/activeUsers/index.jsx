@@ -1,12 +1,19 @@
 import React from "react";
 import {
   Box,
-  Card,
-  CardContent,
   useTheme,
   Typography,
+  CircularProgress,
+  Card,
+  CardContent,
+  Grid,
+  Avatar,
+  Chip,
 } from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
+import {
+  Person as PersonIcon,
+  AccessTime as TimeIcon,
+} from "@mui/icons-material";
 import Header from "components/Header";
 import { useGetActiveUsersQuery } from "state/api";
 
@@ -14,79 +21,106 @@ const ActiveUsers = () => {
   const theme = useTheme();
   const { data, isLoading } = useGetActiveUsersQuery();
 
-  const columns = [
-    {
-      field: "_id",
-      headerName: "ID",
-      flex: 1,
-    },
-    {
-      field: "user_id",
-      headerName: "User",
-      flex: 1,
-      renderCell: (params) => params.value?.name || "N/A",
-    },
-    {
-      field: "session_duration",
-      headerName: "Session Duration",
-      flex: 1,
-      renderCell: (params) => `${Math.round(params.value / 60)} mins`,
-    },
-    {
-      field: "Location",
-      headerName: "Location",
-      flex: 1,
-    },
-    {
-      field: "created_at",
-      headerName: "Started At",
-      flex: 1,
-      renderCell: (params) => new Date(params.value).toLocaleString(),
-    },
-  ];
-
   return (
     <Box m="1.5rem 2.5rem">
-      <Header title="ACTIVE USERS" subtitle="Monitor Real-time User Activity" />
-      <Box mt="40px" height="75vh">
-        <Card
-          sx={{
-            height: "100%",
-            "& .MuiDataGrid-root": {
-              border: "none",
-            },
-            "& .MuiDataGrid-cell": {
-              borderBottom: "none",
-            },
-            "& .MuiDataGrid-columnHeaders": {
-              backgroundColor: theme.palette.background.alt,
-              color: theme.palette.secondary[100],
-              borderBottom: "none",
-            },
-            "& .MuiDataGrid-virtualScroller": {
-              backgroundColor: theme.palette.primary.light,
-            },
-            "& .MuiDataGrid-footerContainer": {
-              backgroundColor: theme.palette.background.alt,
-              color: theme.palette.secondary[100],
-              borderTop: "none",
-            },
-            "& .MuiDataGrid-toolbarContainer .MuiButton-text": {
-              color: `${theme.palette.secondary[200]} !important`,
-            },
-          }}
-        >
-          <CardContent>
-            <DataGrid
-              loading={isLoading || !data}
-              getRowId={(row) => row._id}
-              rows={(data?.activeUsers) || []}
-              columns={columns}
-              pageSize={20}
-              rowsPerPageOptions={[20, 50, 100]}
-            />
-          </CardContent>
-        </Card>
+      <Header
+        title="ACTIVE USERS"
+        subtitle="Monitor Currently Active Users"
+        icon={
+          <PersonIcon
+            sx={{
+              fontSize: "2rem",
+              color: theme.palette.secondary[300],
+            }}
+          />
+        }
+      />
+
+      <Box mt="40px">
+        {isLoading ? (
+          <Box display="flex" justifyContent="center" alignItems="center" height="100%">
+            <CircularProgress />
+          </Box>
+        ) : (
+          <Grid container spacing={3}>
+            {data?.activeUsers?.map((user) => (
+              <Grid item xs={12} sm={6} md={4} lg={3} key={user._id}>
+                <Card
+                  sx={{
+                    backgroundColor: theme.palette.background.alt,
+                    borderRadius: "0.55rem",
+                    height: "100%",
+                  }}
+                >
+                  <CardContent>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "1rem",
+                        mb: 2,
+                      }}
+                    >
+                      <Avatar
+                        sx={{
+                          bgcolor: theme.palette.primary.main,
+                          width: 48,
+                          height: 48,
+                        }}
+                      >
+                        {user.user_id?.name?.charAt(0) || "U"}
+                      </Avatar>
+                      <Box>
+                        <Typography
+                          variant="h5"
+                          sx={{ color: theme.palette.secondary[100] }}
+                        >
+                          {user.user_id?.name || "Unknown User"}
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          sx={{ color: theme.palette.secondary[300] }}
+                        >
+                          {user.user_id?.email || "No email"}
+                        </Typography>
+                      </Box>
+                    </Box>
+
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "0.5rem",
+                        mb: 1,
+                      }}
+                    >
+                      <TimeIcon sx={{ color: theme.palette.secondary[300] }} />
+                      <Typography
+                        variant="body2"
+                        sx={{ color: theme.palette.secondary[100] }}
+                      >
+                        Session Duration:{" "}
+                        {Math.floor(user.session_duration / 60)} minutes
+                      </Typography>
+                    </Box>
+
+                    <Chip
+                      label="Active"
+                      color="success"
+                      size="small"
+                      sx={{
+                        mt: 1,
+                        "& .MuiChip-label": {
+                          color: theme.palette.secondary[100],
+                        },
+                      }}
+                    />
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        )}
       </Box>
     </Box>
   );

@@ -1,150 +1,179 @@
 import React from "react";
 import {
   Box,
-  Card,
-  CardContent,
   useTheme,
   Typography,
+  CircularProgress,
   Grid,
+  Card,
+  CardContent,
 } from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
+import {
+  TrendingUp as TrendingUpIcon,
+  Group as GroupIcon,
+  Timeline as TimelineIcon,
+  QueryStats as StatsIcon,
+  PersonAdd as NewUserIcon,
+  AccessTime as TimeIcon,
+} from "@mui/icons-material";
 import Header from "components/Header";
 import { useGetUserStatisticsQuery } from "state/api";
+
+const StatCard = ({ title, value, icon, description, color }) => {
+  const theme = useTheme();
+  
+  return (
+    <Card
+      sx={{
+        backgroundColor: theme.palette.background.alt,
+        borderRadius: "0.55rem",
+        height: "100%",
+      }}
+    >
+      <CardContent>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
+          {icon}
+          <Typography 
+            variant="h6"
+            sx={{ color: theme.palette.secondary[100] }}
+          >
+            {title}
+          </Typography>
+        </Box>
+
+        <Typography 
+          variant="h4"
+          sx={{ 
+            color: color || theme.palette.primary.main,
+            mb: 1
+          }}
+        >
+          {value}
+        </Typography>
+
+        {description && (
+          <Typography 
+            variant="body2"
+            sx={{ color: theme.palette.secondary[300] }}
+          >
+            {description}
+          </Typography>
+        )}
+      </CardContent>
+    </Card>
+  );
+};
 
 const UserStatistics = () => {
   const theme = useTheme();
   const { data, isLoading } = useGetUserStatisticsQuery();
 
-  const columns = [
-    {
-      field: "_id",
-      headerName: "ID",
-      flex: 1,
-    },
-    {
-      field: "user_id",
-      headerName: "User",
-      flex: 1,
-      renderCell: (params) => params.value?.name || "N/A",
-    },
-    {
-      field: "pages_visited",
-      headerName: "Pages Visited",
-      flex: 1.5,
-      renderCell: (params) => (
-        <div>
-          {params.value.map((page, index) => (
-            <div key={index}>
-              {page.page_name}: {page.visit_count} visits
-            </div>
-          ))}
-        </div>
-      ),
-    },
-    {
-      field: "total_time_spent",
-      headerName: "Total Time",
-      flex: 1,
-      renderCell: (params) => `${Math.round(params.value / 3600)} hrs`,
-    },
-  ];
-
   return (
     <Box m="1.5rem 2.5rem">
-      <Header title="USER STATISTICS" subtitle="Analyze User Behavior" />
+      <Header 
+        title="USER STATISTICS" 
+        subtitle="Track User Growth and Activity"
+        icon={
+          <StatsIcon 
+            sx={{ 
+              fontSize: '2rem',
+              color: theme.palette.secondary[300]
+            }} 
+          />
+        }
+      />
       
-      {data && !isLoading && (
-        <Grid container spacing={2} sx={{ mb: 2 }}>
-          <Grid item xs={12} sm={6} md={3}>
-            <Card sx={{ bgcolor: theme.palette.background.alt }}>
-              <CardContent>
-                <Typography variant="h6" color={theme.palette.secondary[100]}>
-                  Total Users
-                </Typography>
-                <Typography variant="h4" color={theme.palette.secondary[200]}>
-                  {data.statistics?.totalUsers || 0}
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <Card sx={{ bgcolor: theme.palette.background.alt }}>
-              <CardContent>
-                <Typography variant="h6" color={theme.palette.secondary[100]}>
-                  Total Page Views
-                </Typography>
-                <Typography variant="h4" color={theme.palette.secondary[200]}>
-                  {data.statistics?.totalPageViews || 0}
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <Card sx={{ bgcolor: theme.palette.background.alt }}>
-              <CardContent>
-                <Typography variant="h6" color={theme.palette.secondary[100]}>
-                  Avg. Time Spent
-                </Typography>
-                <Typography variant="h4" color={theme.palette.secondary[200]}>
-                  {Math.round((data.statistics?.avgTimeSpent || 0) / 60)} min
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <Card sx={{ bgcolor: theme.palette.background.alt }}>
-              <CardContent>
-                <Typography variant="h6" color={theme.palette.secondary[100]}>
-                  Most Visited Page
-                </Typography>
-                <Typography variant="h4" color={theme.palette.secondary[200]}>
-                  {data.statistics?.mostVisitedPage || "N/A"}
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-        </Grid>
-      )}
+      <Box mt="40px">
+        {isLoading ? (
+          <Box display="flex" justifyContent="center" alignItems="center" height="100%">
+            <CircularProgress />
+          </Box>
+        ) : (
+          <Grid container spacing={3}>
+            <Grid item xs={12} sm={6} md={4}>
+              <StatCard
+                title="Total Users"
+                value={data?.totalUsers || 0}
+                icon={
+                  <GroupIcon 
+                    sx={{ 
+                      color: theme.palette.primary.main,
+                      fontSize: '2rem'
+                    }}
+                  />
+                }
+                description="Total registered users"
+              />
+            </Grid>
 
-      <Box mt="40px" height="75vh">
-        <Card
-          sx={{
-            height: "100%",
-            "& .MuiDataGrid-root": {
-              border: "none",
-            },
-            "& .MuiDataGrid-cell": {
-              borderBottom: "none",
-            },
-            "& .MuiDataGrid-columnHeaders": {
-              backgroundColor: theme.palette.background.alt,
-              color: theme.palette.secondary[100],
-              borderBottom: "none",
-            },
-            "& .MuiDataGrid-virtualScroller": {
-              backgroundColor: theme.palette.primary.light,
-            },
-            "& .MuiDataGrid-footerContainer": {
-              backgroundColor: theme.palette.background.alt,
-              color: theme.palette.secondary[100],
-              borderTop: "none",
-            },
-            "& .MuiDataGrid-toolbarContainer .MuiButton-text": {
-              color: `${theme.palette.secondary[200]} !important`,
-            },
-          }}
-        >
-          <CardContent>
-            <DataGrid
-              loading={isLoading || !data}
-              getRowId={(row) => row._id}
-              rows={(data?.userStatistics) || []}
-              columns={columns}
-              pageSize={20}
-              rowsPerPageOptions={[20, 50, 100]}
-            />
-          </CardContent>
-        </Card>
+            <Grid item xs={12} sm={6} md={4}>
+              <StatCard
+                title="New Users (Today)"
+                value={data?.newUsersToday || 0}
+                icon={
+                  <NewUserIcon 
+                    sx={{ 
+                      color: theme.palette.success.main,
+                      fontSize: '2rem'
+                    }}
+                  />
+                }
+                color={theme.palette.success.main}
+                description="Users registered in the last 24 hours"
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={6} md={4}>
+              <StatCard
+                title="Active Users"
+                value={data?.activeUsers || 0}
+                icon={
+                  <TimelineIcon 
+                    sx={{ 
+                      color: theme.palette.warning.main,
+                      fontSize: '2rem'
+                    }}
+                  />
+                }
+                color={theme.palette.warning.main}
+                description="Users active in the last hour"
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={6} md={4}>
+              <StatCard
+                title="User Growth"
+                value={`${data?.userGrowth || 0}%`}
+                icon={
+                  <TrendingUpIcon 
+                    sx={{ 
+                      color: theme.palette.info.main,
+                      fontSize: '2rem'
+                    }}
+                  />
+                }
+                color={theme.palette.info.main}
+                description="User growth rate this month"
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={6} md={4}>
+              <StatCard
+                title="Average Session"
+                value={`${Math.round((data?.avgSessionDuration || 0) / 60)} mins`}
+                icon={
+                  <TimeIcon 
+                    sx={{ 
+                      color: theme.palette.secondary[300],
+                      fontSize: '2rem'
+                    }}
+                  />
+                }
+                description="Average user session duration"
+              />
+            </Grid>
+          </Grid>
+        )}
       </Box>
     </Box>
   );
