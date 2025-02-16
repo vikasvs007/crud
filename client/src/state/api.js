@@ -130,6 +130,7 @@ export const api = createApi({
     getNotifications: build.query({
       query: () => "notifications",
       providesTags: ["Notifications"],
+      pollingInterval: 30000,
     }),
     createNotification: build.mutation({
       query: (data) => ({
@@ -152,18 +153,21 @@ export const api = createApi({
     getActiveUsers: build.query({
       query: () => "active-users",
       providesTags: ["ActiveUsers"],
+      pollingInterval: 30000,
     }),
     
     // Visitors endpoints
     getVisitors: build.query({
       query: () => "visitors",
       providesTags: ["Visitors"],
+      pollingInterval: 30000,
     }),
     
     // User Statistics endpoints
     getUserStatistics: build.query({
       query: () => "user-statistics",
       providesTags: ["UserStatistics"],
+      pollingInterval: 30000,
     }),
     
     // Geography endpoints

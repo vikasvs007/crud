@@ -28,6 +28,7 @@ const StatCard = ({ title, value, icon, description, color }) => {
         backgroundColor: theme.palette.background.alt,
         borderRadius: "0.55rem",
         height: "100%",
+        boxShadow: "0px 2px 10px rgba(0, 0, 0, 0.1)",
       }}
     >
       <CardContent>
@@ -45,7 +46,8 @@ const StatCard = ({ title, value, icon, description, color }) => {
           variant="h4"
           sx={{ 
             color: color || theme.palette.primary.main,
-            mb: 1
+            mb: 1,
+            fontWeight: "bold"
           }}
         >
           {value}
@@ -54,7 +56,10 @@ const StatCard = ({ title, value, icon, description, color }) => {
         {description && (
           <Typography 
             variant="body2"
-            sx={{ color: theme.palette.secondary[300] }}
+            sx={{ 
+              color: theme.palette.secondary[300],
+              fontStyle: "italic"
+            }}
           >
             {description}
           </Typography>
@@ -93,7 +98,7 @@ const UserStatistics = () => {
             <Grid item xs={12} sm={6} md={4}>
               <StatCard
                 title="Total Users"
-                value={data?.totalUsers || 0}
+                value={data?.totalUsers?.toLocaleString()}
                 icon={
                   <GroupIcon 
                     sx={{ 
@@ -109,7 +114,7 @@ const UserStatistics = () => {
             <Grid item xs={12} sm={6} md={4}>
               <StatCard
                 title="New Users (Today)"
-                value={data?.newUsersToday || 0}
+                value={data?.newUsersToday?.toLocaleString()}
                 icon={
                   <NewUserIcon 
                     sx={{ 
@@ -126,7 +131,7 @@ const UserStatistics = () => {
             <Grid item xs={12} sm={6} md={4}>
               <StatCard
                 title="Active Users"
-                value={data?.activeUsers || 0}
+                value={data?.activeUsers?.toLocaleString()}
                 icon={
                   <TimelineIcon 
                     sx={{ 
@@ -143,7 +148,7 @@ const UserStatistics = () => {
             <Grid item xs={12} sm={6} md={4}>
               <StatCard
                 title="User Growth"
-                value={`${data?.userGrowth || 0}%`}
+                value={`${data?.userGrowth}%`}
                 icon={
                   <TrendingUpIcon 
                     sx={{ 
@@ -160,7 +165,7 @@ const UserStatistics = () => {
             <Grid item xs={12} sm={6} md={4}>
               <StatCard
                 title="Average Session"
-                value={`${Math.round((data?.avgSessionDuration || 0) / 60)} mins`}
+                value={`${Math.round(data?.avgSessionDuration / 60)} mins`}
                 icon={
                   <TimeIcon 
                     sx={{ 
