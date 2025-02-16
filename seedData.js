@@ -14,6 +14,7 @@ const users = [
   {
     name: 'Admin User',
     email: 'admin@example.com',
+    phone: '+1 (555) 000-0000',
     password: 'admin123',
     role: 'admin',
     profile_image: 'https://example.com/admin.jpg',
@@ -25,6 +26,7 @@ const users = [
   {
     name: 'Sarah Johnson',
     email: 'sarah.j@example.com',
+    phone: '+1 (555) 111-1111',
     password: 'sarah123',
     role: 'customer',
     profile_image: 'https://example.com/sarah.jpg',
@@ -36,6 +38,7 @@ const users = [
   {
     name: 'Mike Wilson',
     email: 'mike.w@example.com',
+    phone: '+1 (555) 222-2222',
     password: 'mike123',
     role: 'customer',
     profile_image: 'https://example.com/mike.jpg',
@@ -47,6 +50,7 @@ const users = [
   {
     name: 'Emily Brown',
     email: 'emily.b@example.com',
+    phone: '+1 (555) 333-3333',
     password: 'emily123',
     role: 'customer',
     profile_image: 'https://example.com/emily.jpg',
@@ -58,6 +62,7 @@ const users = [
   {
     name: 'David Lee',
     email: 'david.l@example.com',
+    phone: '+1 (555) 444-4444',
     password: 'david123',
     role: 'customer',
     profile_image: 'https://example.com/david.jpg',
@@ -69,6 +74,7 @@ const users = [
   {
     name: 'Lisa Chen',
     email: 'lisa.c@example.com',
+    phone: '+1 (555) 555-5555',
     password: 'lisa123',
     role: 'customer',
     profile_image: 'https://example.com/lisa.jpg',
@@ -80,6 +86,7 @@ const users = [
   {
     name: 'Tom Anderson',
     email: 'tom.a@example.com',
+    phone: '+1 (555) 666-6666',
     password: 'tom123',
     role: 'customer',
     profile_image: 'https://example.com/tom.jpg',
@@ -91,6 +98,7 @@ const users = [
   {
     name: 'Rachel Green',
     email: 'rachel.g@example.com',
+    phone: '+1 (555) 777-7777',
     password: 'rachel123',
     role: 'customer',
     profile_image: 'https://example.com/rachel.jpg',
@@ -102,6 +110,7 @@ const users = [
   {
     name: 'Kevin Patel',
     email: 'kevin.p@example.com',
+    phone: '+1 (555) 888-8888',
     password: 'kevin123',
     role: 'customer',
     profile_image: 'https://example.com/kevin.jpg',
@@ -113,6 +122,7 @@ const users = [
   {
     name: 'Anna Smith',
     email: 'anna.s@example.com',
+    phone: '+1 (555) 999-9999',
     password: 'anna123',
     role: 'customer',
     profile_image: 'https://example.com/anna.jpg',
@@ -124,6 +134,7 @@ const users = [
   {
     name: 'Chris Morgan',
     email: 'chris.m@example.com',
+    phone: '+1 (555) 101-0101',
     password: 'chris123',
     role: 'customer',
     profile_image: 'https://example.com/chris.jpg',
@@ -135,6 +146,7 @@ const users = [
   {
     name: 'John Doe',
     email: 'john@example.com',
+    phone: '+1 (555) 121-2121',
     password: 'password123',
     role: 'customer',
     profile_image: 'https://example.com/john.jpg',
