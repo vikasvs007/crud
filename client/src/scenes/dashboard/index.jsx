@@ -70,285 +70,143 @@ const Dashboard = () => {
     },
   ];
 
-  const orderColumns = [
-    {
-      field: "customerName",
-      headerName: "Customer",
-      flex: 1,
-      renderCell: (params) => (
-        <Typography sx={{ color: theme.palette.secondary[100] }}>
-          {params.value}
-        </Typography>
-      ),
-    },
-    {
-      field: "productName",
-      headerName: "Product",
-      flex: 1,
-      renderCell: (params) => (
-        <Typography sx={{ color: theme.palette.secondary[100] }}>
-          {params.value}
-        </Typography>
-      ),
-    },
-    {
-      field: "status",
-      headerName: "Status",
-      flex: 0.8,
-      renderCell: (params) => {
-        const getStatusColor = (status) => {
-          switch (status.toLowerCase()) {
-            case "completed":
-              return theme.palette.success.main;
-            case "processing":
-              return theme.palette.warning.main;
-            case "pending":
-              return theme.palette.info.main;
-            default:
-              return theme.palette.grey[500];
-          }
-        };
-
-        return (
-          <Chip
-            label={params.value}
-            sx={{
-              backgroundColor: getStatusColor(params.value),
-              color: "#fff",
-            }}
-          />
-        );
-      },
-    },
-  ];
-
-  const enquiryColumns = [
-    {
-      field: "name",
-      headerName: "Name",
-      flex: 1,
-      renderCell: (params) => (
-        <Typography sx={{ color: theme.palette.secondary[100] }}>
-          {params.value}
-        </Typography>
-      ),
-    },
-    {
-      field: "subject",
-      headerName: "Subject",
-      flex: 1,
-      renderCell: (params) => (
-        <Typography 
-          sx={{ 
-            color: theme.palette.secondary[100],
-            whiteSpace: "nowrap",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-          }}
-        >
-          {params.value}
-        </Typography>
-      ),
-    },
-    {
-      field: "status",
-      headerName: "Status",
-      flex: 0.8,
-      renderCell: (params) => {
-        const getStatusColor = (status) => {
-          switch (status.toLowerCase()) {
-            case "resolved":
-              return theme.palette.success.main;
-            case "in progress":
-              return theme.palette.warning.main;
-            case "new":
-              return theme.palette.info.main;
-            default:
-              return theme.palette.grey[500];
-          }
-        };
-
-        return (
-          <Chip
-            label={params.value}
-            sx={{
-              backgroundColor: getStatusColor(params.value),
-              color: "#fff",
-            }}
-          />
-        );
-      },
-    },
-  ];
-
   return (
     <Box m="1.5rem 2.5rem">
       <Header title="DASHBOARD" subtitle="Welcome to your dashboard" />
 
-      <Grid container spacing={2}>
-        {dashboardStats.map((stat) => (
-          <Grid item xs={12} sm={6} md={3} key={stat.title}>
-            <StatBox
-              title={stat.title}
-              value={stat.value}
-              icon={stat.icon}
-              description={stat.description}
-            />
+      <Box mt="20px">
+        <Grid container spacing={2}>
+          {dashboardStats.map((stat) => (
+            <Grid item xs={12} sm={6} md={3} key={stat.title}>
+              <StatBox
+                title={stat.title}
+                value={stat.value}
+                icon={stat.icon}
+                description={stat.description}
+              />
+            </Grid>
+          ))}
+        </Grid>
+      </Box>
+
+      <Box mt="2rem">
+        <Grid container spacing={2}>
+          {/* Recent Orders */}
+          <Grid item xs={12} md={6}>
+            <Card sx={{ bgcolor: theme.palette.background.alt }}>
+              <CardContent>
+                <Typography variant="h6" color={theme.palette.secondary[100]} gutterBottom>
+                  Recent Orders
+                </Typography>
+                {isLoadingOrders ? (
+                  <CircularProgress />
+                ) : (
+                  <Box>
+                    {recentOrders.map((order) => (
+                      <Box
+                        key={order._id}
+                        sx={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          mb: 2,
+                          p: 1,
+                          borderRadius: 1,
+                          bgcolor: theme.palette.primary.light,
+                        }}
+                      >
+                        <Box>
+                          <Typography color={theme.palette.secondary[100]}>
+                            {order.user_id?.name || "Unknown Customer"}
+                          </Typography>
+                          <Typography variant="caption" color={theme.palette.secondary[300]}>
+                            {order.products.map(p => `${p.product_id?.name || 'Product'} (${p.quantity})`).join(', ')}
+                          </Typography>
+                        </Box>
+                        <Box>
+                          <Chip
+                            label={order.status}
+                            color={
+                              order.status === "delivered"
+                                ? "success"
+                                : order.status === "shipped"
+                                ? "primary"
+                                : "warning"
+                            }
+                            size="small"
+                          />
+                          <Typography variant="caption" color={theme.palette.secondary[300]} sx={{ display: 'block' }}>
+                            ${order.total_amount.toFixed(2)}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    ))}
+                  </Box>
+                )}
+              </CardContent>
+            </Card>
           </Grid>
-        ))}
-      </Grid>
 
-      <Box
-        mt="20px"
-        display="grid"
-        gridTemplateColumns="repeat(12, 1fr)"
-        gridAutoRows="160px"
-        gap="20px"
-        sx={{
-          "& > div": { gridColumn: isNonMediumScreens ? undefined : "span 12" },
-        }}
-      >
-        {/* Recent Orders */}
-        <Box
-          gridColumn="span 6"
-          gridRow="span 2"
-        >
-          <Card 
-            sx={{ 
-              height: "100%",
-              backgroundColor: theme.palette.background.alt,
-              backgroundImage: "none",
-              borderRadius: "0.55rem",
-            }}
-          >
-            <CardContent>
-              <Typography 
-                variant="h6" 
-                sx={{ 
-                  color: theme.palette.secondary[100],
-                  mb: 2
-                }}
-              >
-                Recent Orders
-              </Typography>
-              {isLoadingOrders ? (
-                <Box display="flex" justifyContent="center" alignItems="center" height="100%">
+          {/* Recent Enquiries */}
+          <Grid item xs={12} md={6}>
+            <Card sx={{ bgcolor: theme.palette.background.alt }}>
+              <CardContent>
+                <Typography variant="h6" color={theme.palette.secondary[100]} gutterBottom>
+                  Recent Enquiries
+                </Typography>
+                {isLoadingEnquiries ? (
                   <CircularProgress />
-                </Box>
-              ) : (
-                <Box
-                  sx={{
-                    height: "300px",
-                    "& .MuiDataGrid-root": {
-                      border: "none",
-                      backgroundColor: theme.palette.background.alt,
-                    },
-                    "& .MuiDataGrid-cell": {
-                      borderBottom: "none",
-                    },
-                    "& .MuiDataGrid-columnHeaders": {
-                      backgroundColor: theme.palette.background.alt,
-                      color: theme.palette.secondary[100],
-                      borderBottom: "none",
-                    },
-                    "& .MuiDataGrid-virtualScroller": {
-                      backgroundColor: theme.palette.background.alt,
-                    },
-                    "& .MuiDataGrid-footerContainer": {
-                      backgroundColor: theme.palette.background.alt,
-                      color: theme.palette.secondary[100],
-                      borderTop: "none",
-                    },
-                    "& .MuiDataGrid-toolbarContainer .MuiButton-text": {
-                      color: `${theme.palette.secondary[200]} !important`,
-                    },
-                  }}
-                >
-                  <DataGrid
-                    rows={recentOrders}
-                    columns={orderColumns}
-                    pageSize={5}
-                    getRowId={(row) => row._id}
-                    rowsPerPageOptions={[5]}
-                    disableSelectionOnClick
-                    hideFooter
-                  />
-                </Box>
-              )}
-            </CardContent>
-          </Card>
-        </Box>
-
-        {/* Recent Enquiries */}
-        <Box
-          gridColumn="span 6"
-          gridRow="span 2"
-        >
-          <Card 
-            sx={{ 
-              height: "100%",
-              backgroundColor: theme.palette.background.alt,
-              backgroundImage: "none",
-              borderRadius: "0.55rem",
-            }}
-          >
-            <CardContent>
-              <Typography 
-                variant="h6" 
-                sx={{ 
-                  color: theme.palette.secondary[100],
-                  mb: 2
-                }}
-              >
-                Recent Enquiries
-              </Typography>
-              {isLoadingEnquiries ? (
-                <Box display="flex" justifyContent="center" alignItems="center" height="100%">
-                  <CircularProgress />
-                </Box>
-              ) : (
-                <Box
-                  sx={{
-                    height: "300px",
-                    "& .MuiDataGrid-root": {
-                      border: "none",
-                      backgroundColor: theme.palette.background.alt,
-                    },
-                    "& .MuiDataGrid-cell": {
-                      borderBottom: "none",
-                    },
-                    "& .MuiDataGrid-columnHeaders": {
-                      backgroundColor: theme.palette.background.alt,
-                      color: theme.palette.secondary[100],
-                      borderBottom: "none",
-                    },
-                    "& .MuiDataGrid-virtualScroller": {
-                      backgroundColor: theme.palette.background.alt,
-                    },
-                    "& .MuiDataGrid-footerContainer": {
-                      backgroundColor: theme.palette.background.alt,
-                      color: theme.palette.secondary[100],
-                      borderTop: "none",
-                    },
-                    "& .MuiDataGrid-toolbarContainer .MuiButton-text": {
-                      color: `${theme.palette.secondary[200]} !important`,
-                    },
-                  }}
-                >
-                  <DataGrid
-                    rows={recentEnquiries}
-                    columns={enquiryColumns}
-                    pageSize={5}
-                    getRowId={(row) => row._id}
-                    rowsPerPageOptions={[5]}
-                    disableSelectionOnClick
-                    hideFooter
-                  />
-                </Box>
-              )}
-            </CardContent>
-          </Card>
-        </Box>
+                ) : (
+                  <Box>
+                    {recentEnquiries.map((enquiry) => (
+                      <Box
+                        key={enquiry._id}
+                        sx={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          mb: 2,
+                          p: 1,
+                          borderRadius: 1,
+                          bgcolor: theme.palette.primary.light,
+                        }}
+                      >
+                        <Box>
+                          <Typography color={theme.palette.secondary[100]}>
+                            {enquiry.user_id?.name || "Unknown User"}
+                          </Typography>
+                          <Typography
+                            variant="caption"
+                            color={theme.palette.secondary[300]}
+                            sx={{
+                              display: 'block',
+                              whiteSpace: 'nowrap',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              maxWidth: '300px'
+                            }}
+                          >
+                            {enquiry.message}
+                          </Typography>
+                        </Box>
+                        <Box>
+                          <Chip
+                            label={enquiry.status}
+                            color={enquiry.status === "closed" ? "error" : "success"}
+                            size="small"
+                          />
+                          <Typography variant="caption" color={theme.palette.secondary[300]} sx={{ display: 'block' }}>
+                            {new Date(enquiry.created_at).toLocaleDateString()}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    ))}
+                  </Box>
+                )}
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
       </Box>
     </Box>
   );

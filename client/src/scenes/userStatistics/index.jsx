@@ -22,32 +22,30 @@ const UserStatistics = () => {
       flex: 1,
     },
     {
-      field: "userId",
-      headerName: "User ID",
+      field: "user_id",
+      headerName: "User",
       flex: 1,
+      renderCell: (params) => params.value?.name || "N/A",
     },
     {
-      field: "loginCount",
-      headerName: "Login Count",
-      flex: 1,
+      field: "pages_visited",
+      headerName: "Pages Visited",
+      flex: 1.5,
+      renderCell: (params) => (
+        <div>
+          {params.value.map((page, index) => (
+            <div key={index}>
+              {page.page_name}: {page.visit_count} visits
+            </div>
+          ))}
+        </div>
+      ),
     },
     {
-      field: "totalSessionTime",
-      headerName: "Total Session Time",
+      field: "total_time_spent",
+      headerName: "Total Time",
       flex: 1,
       renderCell: (params) => `${Math.round(params.value / 3600)} hrs`,
-    },
-    {
-      field: "lastLogin",
-      headerName: "Last Login",
-      flex: 1,
-      renderCell: (params) => new Date(params.value).toLocaleString(),
-    },
-    {
-      field: "averageSessionDuration",
-      headerName: "Avg Session",
-      flex: 1,
-      renderCell: (params) => `${Math.round(params.value / 60)} mins`,
     },
   ];
 
@@ -64,7 +62,7 @@ const UserStatistics = () => {
                   Total Users
                 </Typography>
                 <Typography variant="h4" color={theme.palette.secondary[200]}>
-                  {data.totalUsers || 0}
+                  {data.statistics?.totalUsers || 0}
                 </Typography>
               </CardContent>
             </Card>
@@ -73,10 +71,10 @@ const UserStatistics = () => {
             <Card sx={{ bgcolor: theme.palette.background.alt }}>
               <CardContent>
                 <Typography variant="h6" color={theme.palette.secondary[100]}>
-                  Active Today
+                  Total Page Views
                 </Typography>
                 <Typography variant="h4" color={theme.palette.secondary[200]}>
-                  {data.activeToday || 0}
+                  {data.statistics?.totalPageViews || 0}
                 </Typography>
               </CardContent>
             </Card>
@@ -85,10 +83,10 @@ const UserStatistics = () => {
             <Card sx={{ bgcolor: theme.palette.background.alt }}>
               <CardContent>
                 <Typography variant="h6" color={theme.palette.secondary[100]}>
-                  Avg. Session Time
+                  Avg. Time Spent
                 </Typography>
                 <Typography variant="h4" color={theme.palette.secondary[200]}>
-                  {Math.round((data.avgSessionTime || 0) / 60)} min
+                  {Math.round((data.statistics?.avgTimeSpent || 0) / 60)} min
                 </Typography>
               </CardContent>
             </Card>
@@ -97,10 +95,10 @@ const UserStatistics = () => {
             <Card sx={{ bgcolor: theme.palette.background.alt }}>
               <CardContent>
                 <Typography variant="h6" color={theme.palette.secondary[100]}>
-                  New Users (Today)
+                  Most Visited Page
                 </Typography>
                 <Typography variant="h4" color={theme.palette.secondary[200]}>
-                  {data.newUsersToday || 0}
+                  {data.statistics?.mostVisitedPage || "N/A"}
                 </Typography>
               </CardContent>
             </Card>
@@ -140,7 +138,7 @@ const UserStatistics = () => {
             <DataGrid
               loading={isLoading || !data}
               getRowId={(row) => row._id}
-              rows={data?.statistics || []}
+              rows={(data?.userStatistics) || []}
               columns={columns}
               pageSize={20}
               rowsPerPageOptions={[20, 50, 100]}

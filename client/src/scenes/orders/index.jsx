@@ -97,42 +97,47 @@ const Orders = () => {
 
   const columns = [
     {
-      field: "customerName",
-      headerName: "Customer Name",
+      field: "user_id",
+      headerName: "Customer",
       flex: 1,
       renderCell: (params) => (
-        <Typography sx={{ color: "#fff" }}>
-          {params.value}
-        </Typography>
+        <Box>
+          <Typography sx={{ color: theme.palette.secondary[100] }}>
+            {params.value?.name || "N/A"}
+          </Typography>
+          <Typography variant="caption" sx={{ color: theme.palette.secondary[300] }}>
+            {params.value?.email || ""}
+          </Typography>
+        </Box>
       ),
     },
     {
-      field: "productName",
-      headerName: "Product",
-      flex: 1,
+      field: "products",
+      headerName: "Products",
+      flex: 2,
       renderCell: (params) => (
-        <Typography sx={{ color: "#fff" }}>
-          {params.value}
-        </Typography>
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+          {params.value.map((product, index) => (
+            <Chip
+              key={index}
+              label={`${product.product_id?.name || product.name || 'Product'} (Qty: ${product.quantity})`}
+              variant="outlined"
+              sx={{ 
+                borderColor: theme.palette.secondary[300],
+                color: theme.palette.secondary[100]
+              }}
+            />
+          ))}
+        </Box>
       ),
     },
     {
-      field: "quantity",
-      headerName: "Quantity",
-      flex: 0.5,
-      renderCell: (params) => (
-        <Typography sx={{ color: "#fff" }}>
-          {params.value}
-        </Typography>
-      ),
-    },
-    {
-      field: "totalAmount",
+      field: "total_amount",
       headerName: "Total Amount",
       flex: 1,
       renderCell: (params) => (
-        <Typography sx={{ color: "#fff" }}>
-          ${Number(params.value).toFixed(2)}
+        <Typography sx={{ color: theme.palette.secondary[100] }}>
+          ${params.value.toFixed(2)}
         </Typography>
       ),
     },
@@ -140,54 +145,28 @@ const Orders = () => {
       field: "status",
       headerName: "Status",
       flex: 0.8,
-      renderCell: (params) => {
-        const getStatusColor = (status) => {
-          switch (status.toLowerCase()) {
-            case "completed":
-              return theme.palette.success.main;
-            case "processing":
-              return theme.palette.warning.main;
-            case "pending":
-              return theme.palette.info.main;
-            case "shipped":
-              return theme.palette.primary.main;
-            default:
-              return theme.palette.grey[500];
+      renderCell: (params) => (
+        <Chip
+          label={params.value}
+          color={
+            params.value === "delivered"
+              ? "success"
+              : params.value === "shipped"
+              ? "primary"
+              : "warning"
           }
-        };
-
-        return (
-          <Chip
-            label={params.value}
-            sx={{
-              backgroundColor: getStatusColor(params.value),
-              color: "#fff",
-              fontWeight: "bold",
-            }}
-          />
-        );
-      },
+          sx={{ width: 90 }}
+        />
+      ),
     },
     {
-      field: "actions",
-      headerName: "Actions",
-      flex: 0.7,
-      sortable: false,
+      field: "created_at",
+      headerName: "Order Date",
+      flex: 1,
       renderCell: (params) => (
-        <Box>
-          <IconButton
-            onClick={() => handleOpenDialog(params.row)}
-            sx={{ color: theme.palette.secondary[300] }}
-          >
-            <EditIcon />
-          </IconButton>
-          <IconButton
-            onClick={() => console.log("Delete", params.row._id)}
-            sx={{ color: theme.palette.error.main }}
-          >
-            <DeleteIcon />
-          </IconButton>
-        </Box>
+        <Typography sx={{ color: theme.palette.secondary[100] }}>
+          {new Date(params.value).toLocaleString()}
+        </Typography>
       ),
     },
   ];
@@ -239,28 +218,22 @@ const Orders = () => {
                 },
                 "& .MuiDataGrid-cell": {
                   borderBottom: "none",
-                  backgroundColor: theme.palette.primary[500],
                 },
                 "& .MuiDataGrid-columnHeaders": {
-                  backgroundColor: theme.palette.primary[600],
-                  color: "#fff",
+                  backgroundColor: theme.palette.background.alt,
+                  color: theme.palette.secondary[100],
                   borderBottom: "none",
                 },
                 "& .MuiDataGrid-virtualScroller": {
-                  backgroundColor: theme.palette.primary[500],
+                  backgroundColor: theme.palette.primary.light,
                 },
                 "& .MuiDataGrid-footerContainer": {
-                  backgroundColor: theme.palette.primary[600],
-                  color: "#fff",
+                  backgroundColor: theme.palette.background.alt,
+                  color: theme.palette.secondary[100],
                   borderTop: "none",
                 },
                 "& .MuiDataGrid-toolbarContainer .MuiButton-text": {
-                  color: "#fff !important",
-                },
-                "& .MuiDataGrid-row": {
-                  "&:nth-of-type(2n)": {
-                    backgroundColor: theme.palette.primary[400],
-                  },
+                  color: `${theme.palette.secondary[200]} !important`,
                 },
               }}
             >
@@ -269,6 +242,8 @@ const Orders = () => {
                 getRowId={(row) => row._id}
                 rows={data || []}
                 columns={columns}
+                pageSize={20}
+                rowsPerPageOptions={[20, 50, 100]}
                 components={{
                   Toolbar: GridToolbar,
                 }}

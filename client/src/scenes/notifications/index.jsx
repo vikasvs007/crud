@@ -21,9 +21,10 @@ const Notifications = () => {
       flex: 1,
     },
     {
-      field: "title",
-      headerName: "Title",
+      field: "user_id",
+      headerName: "User",
       flex: 1,
+      renderCell: (params) => params.value?.name || "N/A",
     },
     {
       field: "message",
@@ -31,17 +32,13 @@ const Notifications = () => {
       flex: 2,
     },
     {
-      field: "type",
-      headerName: "Type",
-      flex: 0.7,
-    },
-    {
-      field: "status",
+      field: "is_read",
       headerName: "Status",
       flex: 0.7,
+      renderCell: (params) => params.value ? "Read" : "Unread",
     },
     {
-      field: "createdAt",
+      field: "created_at",
       headerName: "Created At",
       flex: 1,
       renderCell: (params) => new Date(params.value).toLocaleString(),
@@ -83,7 +80,7 @@ const Notifications = () => {
             <DataGrid
               loading={isLoading || !data}
               getRowId={(row) => row._id}
-              rows={data || []}
+              rows={(data?.notifications) || []}
               columns={columns}
               pageSize={20}
               rowsPerPageOptions={[20, 50, 100]}

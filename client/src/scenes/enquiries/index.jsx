@@ -103,50 +103,29 @@ const Enquiries = () => {
 
   const columns = [
     {
-      field: "name",
-      headerName: "Name",
-      flex: 1,
-      renderCell: (params) => (
-        <Typography sx={{ color: "#fff" }}>
-          {params.value}
-        </Typography>
-      ),
-    },
-    {
-      field: "email",
-      headerName: "Email",
-      flex: 1,
-      renderCell: (params) => (
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <EmailIcon fontSize="small" sx={{ color: "#fff" }} />
-          <Typography sx={{ color: "#fff" }}>
-            {params.value}
-          </Typography>
-        </Box>
-      ),
-    },
-    {
-      field: "phone",
-      headerName: "Phone",
-      flex: 1,
-      renderCell: (params) => (
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <PhoneIcon fontSize="small" sx={{ color: "#fff" }} />
-          <Typography sx={{ color: "#fff" }}>
-            {params.value}
-          </Typography>
-        </Box>
-      ),
-    },
-    {
-      field: "subject",
-      headerName: "Subject",
+      field: "user_id",
+      headerName: "User Details",
       flex: 1.5,
+      renderCell: (params) => (
+        <Box>
+          <Typography sx={{ color: theme.palette.secondary[100] }}>
+            {params.value?.name || params.row.name || "Unknown User"}
+          </Typography>
+          <Typography variant="caption" sx={{ color: theme.palette.secondary[300] }}>
+            {params.value?.email || params.row.email || "No email"} • {params.value?.phone || params.row.phone || "No phone"}
+          </Typography>
+        </Box>
+      ),
+    },
+    {
+      field: "message",
+      headerName: "Message",
+      flex: 2,
       renderCell: (params) => (
         <Typography 
           sx={{ 
-            color: "#fff",
-            whiteSpace: "nowrap",
+            color: theme.palette.secondary[100],
+            whiteSpace: "pre-wrap",
             overflow: "hidden",
             textOverflow: "ellipsis",
           }}
@@ -159,58 +138,22 @@ const Enquiries = () => {
       field: "status",
       headerName: "Status",
       flex: 0.8,
-      renderCell: (params) => {
-        const getStatusColor = (status) => {
-          switch (status.toLowerCase()) {
-            case "resolved":
-              return theme.palette.success.main;
-            case "in progress":
-              return theme.palette.warning.main;
-            case "new":
-              return theme.palette.info.main;
-            default:
-              return theme.palette.grey[500];
-          }
-        };
-
-        return (
-          <Chip
-            label={params.value}
-            sx={{
-              backgroundColor: getStatusColor(params.value),
-              color: "#fff",
-              fontWeight: "bold",
-            }}
-          />
-        );
-      },
+      renderCell: (params) => (
+        <Chip
+          label={params.value}
+          color={params.value === "closed" ? "error" : "success"}
+          sx={{ width: 80 }}
+        />
+      ),
     },
     {
-      field: "createdAt",
+      field: "created_at",
       headerName: "Created At",
       flex: 1,
-      renderCell: (params) => new Date(params.value).toLocaleString(),
-    },
-    {
-      field: "actions",
-      headerName: "Actions",
-      flex: 0.7,
-      sortable: false,
       renderCell: (params) => (
-        <Box>
-          <IconButton
-            onClick={() => handleOpenDialog(params.row)}
-            sx={{ color: theme.palette.secondary[300] }}
-          >
-            <EditIcon />
-          </IconButton>
-          <IconButton
-            onClick={() => console.log("Delete", params.row._id)}
-            sx={{ color: theme.palette.error.main }}
-          >
-            <DeleteIcon />
-          </IconButton>
-        </Box>
+        <Typography sx={{ color: theme.palette.secondary[100] }}>
+          {new Date(params.value).toLocaleString()}
+        </Typography>
       ),
     },
   ];
@@ -292,8 +235,34 @@ const Enquiries = () => {
                 getRowId={(row) => row._id}
                 rows={data || []}
                 columns={columns}
+                pageSize={20}
+                rowsPerPageOptions={[20, 50, 100]}
                 components={{
                   Toolbar: GridToolbar,
+                }}
+                sx={{
+                  "& .MuiDataGrid-root": {
+                    border: "none",
+                  },
+                  "& .MuiDataGrid-cell": {
+                    borderBottom: "none",
+                  },
+                  "& .MuiDataGrid-columnHeaders": {
+                    backgroundColor: theme.palette.background.alt,
+                    color: theme.palette.secondary[100],
+                    borderBottom: "none",
+                  },
+                  "& .MuiDataGrid-virtualScroller": {
+                    backgroundColor: theme.palette.primary.light,
+                  },
+                  "& .MuiDataGrid-footerContainer": {
+                    backgroundColor: theme.palette.background.alt,
+                    color: theme.palette.secondary[100],
+                    borderTop: "none",
+                  },
+                  "& .MuiDataGrid-toolbarContainer .MuiButton-text": {
+                    color: `${theme.palette.secondary[200]} !important`,
+                  },
                 }}
               />
             </Box>

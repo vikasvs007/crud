@@ -21,6 +21,7 @@ export const api = createApi({
     "ActiveUsers",
     "Visitors",
     "UserStatistics",
+    "Geography",
   ],
   endpoints: (build) => ({
     // User endpoints
@@ -116,18 +117,28 @@ export const api = createApi({
       providesTags: ["Notifications"],
     }),
     
-    // User Statistics endpoints
-    getUserStatistics: build.query({
-      query: () => "statistics/users",
-      providesTags: ["UserStatistics"],
-    }),
+    // Active Users endpoints
     getActiveUsers: build.query({
-      query: () => "statistics/active-users",
+      query: () => "active-users",
       providesTags: ["ActiveUsers"],
     }),
+    
+    // Visitors endpoints
     getVisitors: build.query({
-      query: () => "statistics/visitors",
+      query: () => "visitors",
       providesTags: ["Visitors"],
+    }),
+    
+    // User Statistics endpoints
+    getUserStatistics: build.query({
+      query: () => "user-statistics",
+      providesTags: ["UserStatistics"],
+    }),
+    
+    // Geography endpoints
+    getGeography: build.query({
+      query: () => "geography/users",
+      providesTags: ["Geography"],
     }),
   }),
 });
@@ -149,4 +160,5 @@ export const {
   useGetUserStatisticsQuery,
   useGetActiveUsersQuery,
   useGetVisitorsQuery,
+  useGetGeographyQuery,
 } = api;

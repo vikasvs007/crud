@@ -21,26 +21,27 @@ const ActiveUsers = () => {
       flex: 1,
     },
     {
-      field: "userId",
-      headerName: "User ID",
+      field: "user_id",
+      headerName: "User",
       flex: 1,
+      renderCell: (params) => params.value?.name || "N/A",
     },
     {
-      field: "lastActivity",
-      headerName: "Last Activity",
-      flex: 1,
-      renderCell: (params) => new Date(params.value).toLocaleString(),
-    },
-    {
-      field: "status",
-      headerName: "Status",
-      flex: 0.7,
-    },
-    {
-      field: "sessionDuration",
+      field: "session_duration",
       headerName: "Session Duration",
       flex: 1,
       renderCell: (params) => `${Math.round(params.value / 60)} mins`,
+    },
+    {
+      field: "Location",
+      headerName: "Location",
+      flex: 1,
+    },
+    {
+      field: "created_at",
+      headerName: "Started At",
+      flex: 1,
+      renderCell: (params) => new Date(params.value).toLocaleString(),
     },
   ];
 
@@ -79,7 +80,7 @@ const ActiveUsers = () => {
             <DataGrid
               loading={isLoading || !data}
               getRowId={(row) => row._id}
-              rows={data || []}
+              rows={(data?.activeUsers) || []}
               columns={columns}
               pageSize={20}
               rowsPerPageOptions={[20, 50, 100]}

@@ -21,29 +21,25 @@ const Visitors = () => {
       flex: 1,
     },
     {
-      field: "ipAddress",
+      field: "ip_address",
       headerName: "IP Address",
       flex: 1,
     },
     {
-      field: "userAgent",
-      headerName: "User Agent",
-      flex: 2,
+      field: "location",
+      headerName: "Location",
+      flex: 1.5,
+      renderCell: (params) => 
+        `${params.value.city}, ${params.value.country}`,
     },
     {
-      field: "pageVisited",
-      headerName: "Page Visited",
-      flex: 1,
+      field: "visit_count",
+      headerName: "Visit Count",
+      flex: 0.7,
     },
     {
-      field: "visitDuration",
-      headerName: "Visit Duration",
-      flex: 1,
-      renderCell: (params) => `${Math.round(params.value / 60)} mins`,
-    },
-    {
-      field: "visitedAt",
-      headerName: "Visited At",
+      field: "last_visited_at",
+      headerName: "Last Visit",
       flex: 1,
       renderCell: (params) => new Date(params.value).toLocaleString(),
     },
@@ -84,7 +80,7 @@ const Visitors = () => {
             <DataGrid
               loading={isLoading || !data}
               getRowId={(row) => row._id}
-              rows={data || []}
+              rows={(data?.visitors) || []}
               columns={columns}
               pageSize={20}
               rowsPerPageOptions={[20, 50, 100]}
