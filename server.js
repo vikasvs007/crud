@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const trackActivity = require('./middleware/trackActivity');
 
 // Configure environment variables
 dotenv.config();
@@ -23,6 +24,7 @@ const userStatisticsRoutes = require('./routes/userStatistics');
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(trackActivity);
 
 // Database connection
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/crud_db', {
